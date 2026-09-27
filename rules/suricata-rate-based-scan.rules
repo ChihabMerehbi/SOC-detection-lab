@@ -1,0 +1,16 @@
+# Custom behavioral rule: catches high-rate connection bursts (scans/floods)
+# by SYN-packet volume rather than packet content, closing a gap the
+# default ET Open signature ruleset doesn't cover (a scan is a behavior
+# across many packets, not a fixed single-packet pattern).
+#
+# Flags any source sending 15+ SYN packets within a 5-second window.
+# Verified: 1,903 hits against a live Nmap scan, correct source/destination,
+# confirmed flowing end-to-end into Wazuh as signature_id 1000001.
+#
+# Known limitation (see README "Key Findings"): this counts raw volume only,
+# with no destination-port-diversity check, so it can't on its own distinguish
+# a real multi-port scan from many connections to one port (e.g. a brute-force,
+# or normal bursty traffic to a single service) - see the pass rule below and
+# Wazuh rule 60122 for how that gap is closed at other layers.
+
+alert tcp any any -> $HOME_NET any (msg:"CUSTOM Possible port scan detected - high connection rate"; flags:S; detection_filter:track by_src, count 15, seconds 5; sid:1000001; rev:1;)

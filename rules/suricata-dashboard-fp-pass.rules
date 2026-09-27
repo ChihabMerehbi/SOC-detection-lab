@@ -1,0 +1,12 @@
+# Fix for a real false positive: sid:1000001 (rate-based scan rule) was also
+# firing on ordinary browser traffic to the Wazuh dashboard itself (port 443),
+# since it counts raw SYN volume from a source with no awareness of which
+# port is being hit.
+#
+# This pass rule must be loaded ABOVE sid:1000001 in the rule file - Suricata
+# evaluates rules top-down, so traffic matching this rule is excluded before
+# it ever reaches the counter in sid:1000001, removing the false positive
+# without weakening detection on any other port (confirmed: RDP/3389
+# brute-force detection via sid:1000001 still fires correctly after this fix).
+
+pass tcp any any -> $HOME_NET 443 (msg:"PASS Wazuh dashboard HTTPS traffic - exclude from scan detection"; sid:1000002; rev:1;)

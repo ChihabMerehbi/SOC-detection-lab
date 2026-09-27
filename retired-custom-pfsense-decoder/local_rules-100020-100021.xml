@@ -1,0 +1,20 @@
+<!-- Retired custom pfSense rules - kept for the record, not in active use.
+     Superseded by Wazuh's built-in pfSense decoder/rule (87701), which was
+     verified to already parse the same events correctly. See README.md in
+     this folder for the full story. -->
+
+<group name="pfsense,firewall,">
+  <rule id="100020" level="5">
+    <decoded_as>pfsense-filterlog</decoded_as>
+    <field name="pfsense_action">block</field>
+    <description>pfsense: Blocked connection attempt ($(srcip) -> $(dstip):$(dstport))</description>
+    <group>firewall_drop,</group>
+  </rule>
+
+  <rule id="100021" level="3">
+    <decoded_as>pfsense-filterlog</decoded_as>
+    <field name="pfsense_action">pass</field>
+    <description>pfsense: Allowed connection ($(srcip) -> $(dstip):$(dstport))</description>
+    <group>firewall_allow,</group>
+  </rule>
+</group>
